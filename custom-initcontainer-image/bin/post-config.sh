@@ -15,7 +15,7 @@ git clone https://github.com/ryanezil/amq7-operator-custominit.git /tmp/config-r
 
 
 echo "#### Copying user configuration files to ${CONFIG_INSTANCE_DIR}/etc ####"
-cp /tmp/config-repo/custom-config-files/artemis-users.properties ${CONFIG_INSTANCE_DIR}/etc
-cp /tmp/config-repo/custom-config-files/artemis-roles.properties ${CONFIG_INSTANCE_DIR}/etc
+cp /tmp/config-repo/custom-initcontainer-image/custom-config-files/artemis-users.properties ${CONFIG_INSTANCE_DIR}/etc
+cp /tmp/config-repo/custom-initcontainer-image/custom-config-files/artemis-roles.properties ${CONFIG_INSTANCE_DIR}/etc
 
 echo "#### Custom config done. ####"
