@@ -38,13 +38,13 @@ under the License.
        -->
       <journal-type>NIO</journal-type>
 
-      <paging-directory>/opt/amq-poc/data/paging</paging-directory>
+      <paging-directory>/opt/${AMQ_NAME}/data/paging</paging-directory>
 
-      <bindings-directory>/opt/amq-poc/data/bindings</bindings-directory>
+      <bindings-directory>/opt/${AMQ_NAME}/data/bindings</bindings-directory>
 
-      <journal-directory>/opt/amq-poc/data/journal</journal-directory>
+      <journal-directory>/opt/${AMQ_NAME}/data/journal</journal-directory>
 
-      <large-messages-directory>/opt/amq-poc/data/large-messages</large-messages-directory>
+      <large-messages-directory>/opt/${AMQ_NAME}/data/large-messages</large-messages-directory>
 
       <journal-datasync>true</journal-datasync>
 
