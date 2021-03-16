@@ -1,4 +1,4 @@
-<?xml version='1.0'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -17,18 +17,14 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
+<configuration xmlns="urn:activemq" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
 
-<configuration xmlns="urn:activemq"
-               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-               xmlns:xi="http://www.w3.org/2001/XInclude"
-               xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
-
-   <core xmlns="urn:activemq:core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="urn:activemq:core ">
+   <core xmlns="urn:activemq:core" xsi:schemaLocation="urn:activemq:core ">
 
       <name>${AMQ_NAME}</name>
 
-
+      <!--If true the broker uses the journal files for storing messages.
+          When false, messages are only stored in memory -->
       <persistence-enabled>true</persistence-enabled>
 
       <!-- this could be ASYNCIO, MAPPED, NIO
@@ -37,25 +33,18 @@ under the License.
            NIO: Plain Java Files
        -->
       <journal-type>NIO</journal-type>
-
-      <paging-directory>/opt/${AMQ_NAME}/data/paging</paging-directory>
-
-      <bindings-directory>/opt/${AMQ_NAME}/data/bindings</bindings-directory>
-
-      <journal-directory>/opt/${AMQ_NAME}/data/journal</journal-directory>
-
-      <large-messages-directory>/opt/${AMQ_NAME}/data/large-messages</large-messages-directory>
+      <paging-directory>/opt/middleware-amq7-stage/data/paging</paging-directory>
+      <bindings-directory>/opt/middleware-amq7-stage/data/bindings</bindings-directory>
+      <journal-directory>/opt/middleware-amq7-stage/data/journal</journal-directory>
+      <large-messages-directory>/opt/middleware-amq7-stage/data/large-messages</large-messages-directory>
 
       <journal-datasync>true</journal-datasync>
-
       <journal-min-files>2</journal-min-files>
-
       <journal-pool-files>10</journal-pool-files>
-
       <journal-device-block-size>4096</journal-device-block-size>
-
       <journal-file-size>10M</journal-file-size>
-            <!--
+
+      <!--
         You can verify the network health of a particular NIC by specifying the <network-check-NIC> element.
          <network-check-NIC>theNicName</network-check-NIC>
         -->
@@ -63,9 +52,9 @@ under the License.
       <!--
         Use this to use an HTTP server to validate the network
          <network-check-URL-list>http://www.apache.org</network-check-URL-list> -->
-
       <!-- <network-check-period>10000</network-check-period> -->
       <!-- <network-check-timeout>1000</network-check-timeout> -->
+
 
       <!-- this is a comma separated list, no spaces, just DNS or IPs
            it should accept IPV6
@@ -82,44 +71,39 @@ under the License.
       <!-- <network-check-ping6-command>ping6 -c 1 %2$s</network-check-ping6-command> -->
 
 
-
-    <connectors>
-        <!-- Connector used to be announced through cluster connections and notifications -->
-        <connector name="artemis">tcp://${BROKER_IP}:61616</connector>
-    </connectors>
-
-
+      <connectors>
+         <!-- Connector used to be announced through cluster connections and notifications -->
+         <connector name="artemis">tcp://${BROKER_IP}:61616</connector>
+      </connectors>
 
       <!-- how often we are looking for how many bytes are being used on the disk in ms -->
       <disk-scan-period>5000</disk-scan-period>
 
-      <!-- once the disk hits this limit the system will block, or close the connection in certain protocols
-           that won't support flow control. -->
+      <!-- once the disk usage hits this % limit the system will block, or close the connection in certain protocols
+           that won't support flow control. Default value is 90 when not defined-->
       <max-disk-usage>90</max-disk-usage>
 
       <!-- should the broker detect dead locks and other issues -->
       <critical-analyzer>true</critical-analyzer>
-
       <critical-analyzer-timeout>120000</critical-analyzer-timeout>
-
       <critical-analyzer-check-period>60000</critical-analyzer-check-period>
 
+      <!-- If the broker fails a check and is considered unstable, this parameter specifies what to do -->
+      <!-- LOG: the broker logs a message -->
+      <!-- HALT: stops the virtual machine (VM) hosting the broker -->
+      <!-- SHUTDOWN: shuts down the broker -->
       <critical-analyzer-policy>HALT</critical-analyzer-policy>
 
-
-
-            <!-- the system will enter into page mode once you hit this limit.
+      <!-- the system will enter into page mode once you hit this limit.
            This is an estimate in bytes of how much the messages are using in memory
 
             The system will use half of the available memory (-Xmx) by default for the global-max-size.
             You may specify a different value here if you need to customize it to your needs.
 
             <global-max-size>100Mb</global-max-size>
-
       -->
 
       <acceptors>
-
          <!-- useEpoll means: it will use Netty epoll if you are on a system (Linux) that supports it -->
          <!-- amqpCredits: The number of credits sent to AMQP producers -->
          <!-- amqpLowCredits: The server will send the # credits specified at amqpCredits at this low mark -->
@@ -127,54 +111,147 @@ under the License.
                                       as duplicate detection requires applicationProperties to be parsed on the server. -->
          <!-- amqpMinLargeMessageSize: Determines how many bytes are considered large, so we start using files to hold their data.
                                        default: 102400, -1 would mean to disable large mesasge control -->
-
          <!-- Note: If an acceptor needs to be compatible with HornetQ and/or Artemis 1.x clients add
                     "anycastPrefix=jms.queue.;multicastPrefix=jms.topic." to the acceptor url.
                     See https://issues.apache.org/jira/browse/ARTEMIS-1644 for more information. -->
 
+<!-- DOCUMENTATION: SEE https://activemq.apache.org/components/artemis/documentation/latest/configuring-transports.html -->
 
-           <acceptor name="generic">tcp://${BROKER_IP}:61616?protocols=OPENWIRE,CORE;connectionsAllowed=25;tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;useEpoll=true</acceptor>
+         <!-- Acceptor for CORE and OPENWIRE protocols always enabled-->
+         <!-- virtualTopicConsumerWildcards has been configured -->
+         <acceptor name="artemis">tcp://${BROKER_IP}:61616?connectionsAllowed=33;tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=CORE,OPENWIRE;useEpoll=true;virtualTopicConsumerWildcards=xx.*.*.xx.mydomain.public.%3E%3B3,xx.mydomain.*.xx.mydomain.private.%3E%3B3,xx.*.*.xx.mydomain.*.public.%3E%3B3,xx.mydomain.*.xx.mydomain.*.private.%3E%3B3</acceptor>
+         <acceptor name="amqp">tcp://${BROKER_IP}:5672?connectionsAllowed=33;tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=AMQP;useEpoll=true;amqpCredits=1000;amqpMinCredits=300</acceptor>
+         <acceptor name="amqp-ssl">tcp://${BROKER_IP}:5671?connectionsAllowed=33;tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=AMQP;useEpoll=true;amqpCredits=1000;amqpMinCredits=300;sslEnabled=true;enabledProtocols=TLSv1,TLSv1.1,TLSv1.2;keyStorePath=/etc/middleware-amq7-stage-secret-ssl-volume/broker.ks;keyStorePassword=password;trustStorePath=/etc/middleware-amq7-stage-secret-ssl-volume/client.ts;trustStorePassword=password</acceptor>
+
       </acceptors>
 
-
       <cluster-user>${AMQ_CLUSTER_USER}</cluster-user>
-
       <cluster-password>${AMQ_CLUSTER_PASSWORD}</cluster-password>
 
       <broadcast-groups>
-<broadcast-group name="my-broadcast-group">          <jgroups-file>jgroups-ping.xml</jgroups-file>          <jgroups-channel>activemq_broadcast_channel</jgroups-channel>          <connector-ref>artemis</connector-ref>       </broadcast-group>
+         <broadcast-group name="my-broadcast-group">
+            <jgroups-file>jgroups-ping.xml</jgroups-file>
+            <jgroups-channel>activemq_broadcast_channel</jgroups-channel>
+            <connector-ref>artemis</connector-ref>
+         </broadcast-group>
       </broadcast-groups>
 
       <discovery-groups>
-<discovery-group name="my-discovery-group">          <jgroups-file>jgroups-ping.xml</jgroups-file>          <jgroups-channel>activemq_broadcast_channel</jgroups-channel>          <refresh-timeout>10000</refresh-timeout>       </discovery-group>
+         <discovery-group name="my-discovery-group">
+            <jgroups-file>jgroups-ping.xml</jgroups-file>
+            <jgroups-channel>activemq_broadcast_channel</jgroups-channel>
+            <refresh-timeout>10000</refresh-timeout>
+         </discovery-group>
       </discovery-groups>
 
       <cluster-connections>
-<cluster-connection name="my-cluster">          <connector-ref>artemis</connector-ref>          <retry-interval>1000</retry-interval>          <retry-interval-multiplier>2</retry-interval-multiplier>          <max-retry-interval>32000</max-retry-interval>          <initial-connect-attempts>20</initial-connect-attempts>          <reconnect-attempts>10</reconnect-attempts>          <use-duplicate-detection>true</use-duplicate-detection>          <message-load-balancing>ON_DEMAND</message-load-balancing>          <max-hops>1</max-hops>          <discovery-group-ref discovery-group-name="my-discovery-group"/>       </cluster-connection>
+         <cluster-connection name="my-cluster-connections">
+            <connector-ref>artemis</connector-ref>
+            <retry-interval>1000</retry-interval>
+            <retry-interval-multiplier>2</retry-interval-multiplier>
+            <max-retry-interval>32000</max-retry-interval>
+            <initial-connect-attempts>20</initial-connect-attempts>
+            <reconnect-attempts>10</reconnect-attempts>
+            <use-duplicate-detection>true</use-duplicate-detection>
+            <message-load-balancing>ON_DEMAND</message-load-balancing>
+            <max-hops>1</max-hops>
+            <discovery-group-ref discovery-group-name="my-discovery-group" />
+         </cluster-connection>
       </cluster-connections>
 
+      <security-setting match="#">
+            <!-- read -->
+            <permission type="consume" roles="admins"/>
+            <permission type="browse" roles="admins"/>
+            <!-- write -->
+            <permission type="send" roles="admins"/>
+            <!-- admin -->
+            <permission type="createAddress" roles="admins"/>
+            <permission type="deleteAddress" roles="admins"/>
+            <permission type="createNonDurableQueue" roles="admins"/>
+            <permission type="deleteNonDurableQueue" roles="admins"/>
+            <permission type="createDurableQueue" roles="admins"/>
+            <permission type="deleteDurableQueue" roles="admins"/>
+            <permission type="manage" roles="admins"/>
+      </security-setting>
 
-      <security-settings>
-         <security-setting match="#">
-            <permission type="createNonDurableQueue" roles="admin"/>
-            <permission type="deleteNonDurableQueue" roles="admin"/>
-            <permission type="createDurableQueue" roles="admin"/>
-            <permission type="deleteDurableQueue" roles="admin"/>
-            <permission type="createAddress" roles="admin"/>
-            <permission type="deleteAddress" roles="admin"/>
-            <permission type="consume" roles="admin"/>
-            <permission type="browse" roles="admin"/>
-            <permission type="send" roles="admin"/>
-            <!-- we need this otherwise ./artemis data imp wouldn't work -->
-            <permission type="manage" roles="admin"/>
-         </security-setting>
-      </security-settings>
+      <security-setting match="xx.mydomain.private.#">
+            <!-- read -->
+            <permission type="consume" roles="amq-read,amq-write"/>
+            <permission type="browse" roles="amq-read,amq-write"/>
+            <!-- write -->
+            <permission type="send" roles="amq-write"/>
+            <!-- admin -->
+            <permission type="createAddress" roles="admins,amq-write,amq-read"/>
+            <permission type="deleteAddress" roles="admins,amq-write"/>
+            <permission type="createNonDurableQueue" roles="admins,amq-write,amq-read"/>
+            <permission type="deleteNonDurableQueue" roles="admins,amq-write"/>
+            <permission type="createDurableQueue" roles="admins,amq-write,amq-read"/>
+            <permission type="deleteDurableQueue" roles="admins,amq-write"/>
+            <permission type="manage" roles="admins,amq-write"/>
+      </security-setting>
+
+      <security-setting match="xx.mydomain.public.#">
+            <!-- read -->
+            <permission type="consume" roles="amq-read,amq-readout,amq-write"/>
+            <permission type="browse" roles="amq-read,amq-readout,amq-write"/>
+            <!-- write -->
+            <permission type="send" roles="amq-write"/>
+            <!-- admin -->
+            <permission type="createAddress" roles="admins,amq-write,amq-read,amq-readout"/>
+            <permission type="deleteAddress" roles="admins,amq-write"/>
+            <permission type="createNonDurableQueue" roles="admins,amq-write,amq-read,amq-readout"/>
+            <permission type="deleteNonDurableQueue" roles="admins,amq-write"/>
+            <permission type="createDurableQueue" roles="admins,amq-write,amq-read,amq-readout"/>
+            <permission type="deleteDurableQueue" roles="admins,amq-write"/>
+            <permission type="manage" roles="admins,amq-write"/>
+      </security-setting>
+
+      <security-setting match="xx.mydomain.*.private.#">
+            <!-- read -->
+            <permission type="consume" roles="amq-read,amq-write"/>
+            <permission type="browse" roles="amq-read,amq-write"/>
+            <!-- write -->
+            <permission type="send" roles="amq-write"/>
+            <!-- admin -->
+            <permission type="createAddress" roles="admins,amq-write,amq-read"/>
+            <permission type="deleteAddress" roles="admins,amq-write"/>
+            <permission type="createNonDurableQueue" roles="admins,amq-write,amq-read"/>
+            <permission type="deleteNonDurableQueue" roles="admins,amq-write"/>
+            <permission type="createDurableQueue" roles="admins,amq-write,amq-read"/>
+            <permission type="deleteDurableQueue" roles="admins,amq-write"/>
+            <permission type="manage" roles="admins,amq-write"/>
+      </security-setting>
+
+      <security-setting match="xx.mydomain.*.public.#">
+            <!-- read -->
+            <permission type="consume" roles="amq-read,amq-readout,amq-write"/>
+            <permission type="browse" roles="amq-read,amq-readout,amq-write"/>
+            <!-- write -->
+            <permission type="send" roles="amq-write"/>
+            <!-- admin -->
+            <permission type="createAddress" roles="admins,amq-write,amq-read,amq-readout"/>
+            <permission type="deleteAddress" roles="admins,amq-write"/>
+            <permission type="createNonDurableQueue" roles="admins,amq-write,amq-read,amq-readout"/>
+            <permission type="deleteNonDurableQueue" roles="admins,amq-write"/>
+            <permission type="createDurableQueue" roles="admins,amq-write,amq-read,amq-readout"/>
+            <permission type="deleteDurableQueue" roles="admins,amq-write"/>
+            <permission type="manage" roles="admins,amq-write"/>
+      </security-setting>
+
 
       <address-settings>
+
          <!-- if you define auto-create on certain queues, management has to be auto-create -->
          <address-setting match="activemq.management#">
+            <!-- Address to which messages are sent when they exceed max-delivery-attempts -->
+            <!-- By default, messages are redelivered 10 times at the maximum. Set max-delivery-attempts to -1 for infinite redeliveries. -->
+            <!-- If no address is defined here then such messages will simply be discarded -->
             <dead-letter-address>DLQ</dead-letter-address>
+
+            <!-- Where to send a message that has expired. If no address is defined here then such messages will simply be discarded -->
             <expiry-address>ExpiryQueue</expiry-address>
+
             <redelivery-delay>0</redelivery-delay>
             <!-- with -1 only the global-max-size is in use for limiting -->
             <max-size-bytes>-1</max-size-bytes>
@@ -185,37 +262,81 @@ under the License.
             <auto-create-jms-queues>true</auto-create-jms-queues>
             <auto-create-jms-topics>true</auto-create-jms-topics>
          </address-setting>
-         <!--default for catch all-->
+
+
+         <!--default for catch all addresses-->
          <address-setting match="#">
-            <redistribution-delay>0</redistribution-delay>
-            <dead-letter-address>DLQ</dead-letter-address>
-            <expiry-address>ExpiryQueue</expiry-address>
-            <redelivery-delay>0</redelivery-delay>
-            <!-- with -1 only the global-max-size is in use for limiting -->
-            <max-size-bytes>-1</max-size-bytes>
-            <message-counter-history-day-limit>10</message-counter-history-day-limit>
-            <address-full-policy>PAGE</address-full-policy>
-            <auto-create-queues>true</auto-create-queues>
-            <auto-create-addresses>true</auto-create-addresses>
-            <auto-create-jms-queues>true</auto-create-jms-queues>
-            <auto-create-jms-topics>true</auto-create-jms-topics>
+                   <redistribution-delay>0</redistribution-delay>
+                   <!-- By default, messages are redelivered 10 times at the maximum. Set max-delivery-attempts to -1 for infinite redeliveries. -->
+                   <!-- <max-delivery-attempts>3</max-delivery-attempts> -->
+                   <dead-letter-address>DLQ</dead-letter-address>
+                   <auto-create-dead-letter-resources>true</auto-create-dead-letter-resources>
+                   <!-- DLQ. is the standard default prefix for dead-letter-queues. Included here for didactic purpose -->
+                   <dead-letter-queue-prefix>DLQ.</dead-letter-queue-prefix>
+                   <expiry-address>ExpiryQueue</expiry-address>
+                   <auto-create-expiry-resources>true</auto-create-expiry-resources>
+                   <!-- EXP. is the standard default prefix for expiry-queues. Included here for didactic purpose -->
+                   <expiry-queue-prefix>EXP.</expiry-queue-prefix>
+
+                   <!-- defines how long (ms) to wait before attempting redelivery of a cancelled message. Default is 0 -->
+                   <redelivery-delay>0</redelivery-delay>
+
+                   <!-- What's the max memory the address could have before entering on page mode. (-1 is disabled) -->
+                   <!-- with -1 only the global-max-size is in use for limiting -->
+                   <max-size-bytes>-1</max-size-bytes>
+
+                   <!-- page-size-bytes = The size of each page file used on the paging system, default 10MB -->
+                   <!-- page-max-cache-size = The system will keep up to page-max-cache-size page files (default 5) in memory to optimize IO during paging navigation -->
+
+                   <!-- The number of days to keep a history of the metrics (message counter history) for this address -->
+                   <message-counter-history-day-limit>10</message-counter-history-day-limit>
+
+                   <!-- PAGE: further messages will be paged to disk -->
+                   <!-- DROP: further messages will be silently dropped -->
+                   <!-- FAIL: messages will be dropped and the client message producers will receive an exception -->
+                   <!-- BLOCK: client message producers will block when they try and send further messages -->
+                   <address-full-policy>PAGE</address-full-policy>
+                   <auto-create-queues>true</auto-create-queues>
+                   <auto-create-addresses>true</auto-create-addresses>
+                   <auto-create-jms-queues>true</auto-create-jms-queues>
+                   <auto-create-jms-topics>true</auto-create-jms-topics>
+                   <auto-delete-queues-delay>3600000</auto-delete-queues-delay>
+
          </address-setting>
+
+
+         <address-setting match="DLQ">
+            <expiry-delay>-1</expiry-delay>
+            <min-expiry-delay>600000</min-expiry-delay>
+            <max-expiry-delay>600000</max-expiry-delay>
+         </address-setting>
+
+         <address-setting match="ExpiryQueue">
+            <expiry-address></expiry-address>
+
+            
+            <expiry-delay>-1</expiry-delay>
+            <min-expiry-delay>600000</min-expiry-delay>
+            <max-expiry-delay>600000</max-expiry-delay>
+            
+         </address-setting>
+
       </address-settings>
 
       <addresses>
-         <address name="DLQ">
-            <anycast>
-               <queue name="DLQ" />
-            </anycast>
-         </address>
-         <address name="ExpiryQueue">
-            <anycast>
-               <queue name="ExpiryQueue" />
-            </anycast>
-         </address>
+
+         <!-- DEAD LETTER ADDRESS -->
+            <address name="DLQ">
+               <multicast/>
+            </address>
+
+
+         <!-- EXPIRY ADDRESS -->
+            <address name="ExpiryQueue">
+               <multicast/>
+            </address>
 
       </addresses>
-
 
       <!-- Uncomment the following if you want to use the Standard LoggingActiveMQServerPlugin pluging to log in events
       <broker-plugins>
@@ -230,6 +351,8 @@ under the License.
          </broker-plugin>
       </broker-plugins>
       -->
+
+      <metrics> <plugin class-name="org.apache.activemq.artemis.core.server.metrics.plugins.ArtemisPrometheusMetricsPlugin"/> </metrics>
 
    </core>
 </configuration>
