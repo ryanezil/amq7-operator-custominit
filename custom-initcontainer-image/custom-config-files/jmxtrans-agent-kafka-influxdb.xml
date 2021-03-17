@@ -1,0 +1,56 @@
+<jmxtrans-agent>
+
+	<queries>
+
+
+		<query
+			objectName="org.apache.activemq.artemis:broker=*,component=addresses,address=*,subcomponent=queues,routing-type=&quot;multicast&quot;,queue=*"
+			attributes="ConsumerCount,PersistentSize,MessageCount,MessagesAcknowledged,MessagesAdded,DeliveringCount"
+			resultAlias="activemq.topic,brokerName=%broker%,destinationName=%address%,service=myCustomerservice,projectkey=openshift,slot=default,ou=myOu,domain=mydomain,environment=pro,namespace=mynamespace,instanceId=#hostname#,platform=myPlatform"
+                />
+
+		<query
+			objectName="org.apache.activemq.artemis:broker=*,component=addresses,address=*,subcomponent=queues,routing-type=&quot;anycast&quot;,queue=*"
+			attributes="ConsumerCount,PersistentSize,MessageCount,MessagesAcknowledged,MessagesAdded,DeliveringCount"
+			resultAlias="activemq.queue,brokerName=%broker%,destinationName=%address%,service=myCustomerservice,projectkey=openshift,slot=default,ou=myOu,domain=mydomain,environment=pro,namespace=mynamespace,instanceId=#hostname#,platform=myPlatform"
+                />
+
+
+		<query
+			objectName="java.lang:type=Memory"
+			attributes="HeapMemoryUsage,NonHeapMemoryUsage"
+			resultAlias="activemq.memory.#attribute#,service=myCustomerservice,projectkey=openshift,slot=default,ou=myOu,domain=mydomain,environment=pro,namespace=mynamespace,instanceId=#hostname#,platform=myPlatform"
+		/>
+		<query
+			objectName="java.lang:type=MemoryPool,name=*"
+			attributes="Usage"
+			resultAlias="activemq.memorypool.#attribute#,name=%name%,service=myCustomerservice,projectkey=openshift,slot=default,ou=myOu,domain=mydomain,environment=pro,namespace=mynamespace,instanceId=#hostname#,platform=myPlatform"
+		/>
+		<query
+			objectName="java.lang:type=GarbageCollector,name=*"
+			attributes="CollectionCount,CollectionTime"
+			resultAlias="activemq.gc.#attribute#,type=%name%,service=myCustomerservice,projectkey=openshift,slot=default,ou=myOu,domain=mydomain,environment=pro,namespace=mynamespace,instanceId=#hostname#,platform=myPlatform"
+		/>
+		<query
+			objectName="java.lang:type=Threading"
+			attributes="DaemonThreadCount,PeakThreadCount,ThreadCount,TotalStartedThreadCount"
+			resultAlias="activemq.threads,service=myCustomerservice,projectkey=openshift,slot=default,ou=myOu,domain=mydomain,environment=pro,namespace=mynamespace,instanceId=#hostname#,platform=myPlatform"
+		/>
+
+
+		<query
+			objectName="org.apache.activemq.artemis:broker=*"
+			attributes="MaxDiskUsage,GlobalMaxSize,DiskStoreUsage,UptimeMillis"
+			resultAlias="activemq.limits,brokerName=%broker%,service=myCustomerservice,projectkey=openshift,slot=default,ou=myOu,domain=mydomain,environment=pro,namespace=mynamespace,instanceId=#hostname#,platform=myPlatform"
+		/>
+
+
+	</queries>
+
+  <!-- Output Writers -->
+
+        <outputWriter class="org.jmxtrans.agent.ConsoleOutputWriter" />
+
+        <collectIntervalInSeconds>5</collectIntervalInSeconds>
+
+</jmxtrans-agent>
