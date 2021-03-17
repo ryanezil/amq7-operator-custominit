@@ -239,7 +239,8 @@ under the License.
             <permission type="deleteDurableQueue" roles="admins,amq-write"/>
             <permission type="manage" roles="admins,amq-write"/>
       </security-setting>
-      <security-settings>
+
+      </security-settings>
 
       <address-settings>
 
