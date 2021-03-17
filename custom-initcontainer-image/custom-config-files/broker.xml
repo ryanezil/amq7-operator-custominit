@@ -159,6 +159,7 @@ under the License.
          </cluster-connection>
       </cluster-connections>
 
+      <security-settings>
       <security-setting match="#">
             <!-- read -->
             <permission type="consume" roles="admins"/>
@@ -238,7 +239,7 @@ under the License.
             <permission type="deleteDurableQueue" roles="admins,amq-write"/>
             <permission type="manage" roles="admins,amq-write"/>
       </security-setting>
-
+      <security-settings>
 
       <address-settings>
 
