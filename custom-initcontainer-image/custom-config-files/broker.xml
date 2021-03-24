@@ -354,9 +354,7 @@ under the License.
       </broker-plugins>
       -->
 
-      <!-- THIS IS NOT INCLUDED IN ARTEMIS IMAGE
       <metrics> <plugin class-name="org.apache.activemq.artemis.core.server.metrics.plugins.ArtemisPrometheusMetricsPlugin"/> </metrics>
-      -->
 
    </core>
 </configuration>
